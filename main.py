@@ -20,6 +20,10 @@ ball_y = height // 2
 ball_dx = 5  # Horizontal velocity
 ball_dy = 3  # Vertical velocity
 
+# Load the background image
+background = pygame.image.load("images/background 1.jpg")
+background = pygame.transform.scale(background, (width, height))  # Resize if needed
+
 running = True
 while running:
     # Handle events
@@ -42,6 +46,8 @@ while running:
     # Clear the screen (fill with black)
     screen.fill((0, 0, 0))
 
+ # Draw the background
+    screen.blit(background, (0, 0))  # Draw the background first
     # Draw the ball
     pygame.draw.circle(screen, ball_color, (ball_x, ball_y), ball_radius)
 
