@@ -9,7 +9,7 @@ width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Bouncing Ball")
 
-# Set up the clock for framerate control
+# Set up the clock for framerate control hihudha
 clock = pygame.time.Clock()
 
 # Ball properties
