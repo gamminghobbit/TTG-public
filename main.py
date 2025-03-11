@@ -1,7 +1,7 @@
 import pygame
 import sys
 
-# Initialize Pygame
+# Initialize Pygame - epic
 pygame.init()
 
 # Set up the display
