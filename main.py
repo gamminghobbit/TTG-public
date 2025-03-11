@@ -1,7 +1,6 @@
 import pygame
 import level
 import time
-import sys
 
 width, height = 800, 600
 
