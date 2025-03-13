@@ -2,6 +2,7 @@ import pygame
 import time
 
 def run(screen, start):
+    background = pygame.image.load("images/background 1.png").convert()
     # rendering loop
     running = True
     while running:
