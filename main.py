@@ -3,7 +3,7 @@ import level
 import time
 
 width, height = 800, 600
-
+RED =(255,0,0)
 def main():
     # Initialization
     pygame.init()
