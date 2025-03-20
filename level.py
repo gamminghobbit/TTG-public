@@ -1,9 +1,6 @@
 import pygame
 import time
-
-world_x = 800
-world_y = 600
-
+import math
 
 class Player:
     def __init__(self):
@@ -23,50 +20,35 @@ class Player:
     # function for jump
     def jump_update(self):
         if self.isJump:
-            if self.jumpCount >= -7:
+            if self.jumpCount >= -10:
                 self.y -= (self.jumpCount * abs(self.jumpCount)) * 0.5
                 self.jumpCount -= 1
             else: 
-                self.jumpCount = 7
+                self.jumpCount = 10
                 self.isJump = False
-
-
-
-
-    # def gvt_influence(self):
-    #     if not self.on_the_ground:
-    #         vel = 
-
 
     # our position is changed based on our velocity
     # Our current velocity is also changed by gravity
-    def update_position(self):
-        # velocity_scale = 0.01
-
-        # gravity = 0.001 # 0.001 <- turn off gravity for right now
-        # self.dy += gravity * elapsed_seconds
-
-        # self.x += velocity_scale * self.dx * elapsed_seconds
-        # self.y += velocity_scale * self.dy * elapsed_seconds
-
+    def update_position(self, screen):
+        (world_x, world_y) = screen.get_size()
 
         # stores keys pressed 
         keys = pygame.key.get_pressed() 
         
         # if A key is pressed 
-        if keys[pygame.K_a] and self.x>0: 
+        if keys[pygame.K_a] and self.x > 0: 
             
             # decrement in x co-ordinate 
-            self.x -= self.vel 
+            self.x -= self.vel
             
         # if D key is pressed 
-        if keys[pygame.K_d] and self.x<world_x-self.width: 
+        if keys[pygame.K_d] and self.x < world_x - self.width: 
             
             # increment in x co-ordinate 
-            self.x += self.vel 
+            self.x += self.vel
             
         # if W key is pressed 
-        if keys[pygame.K_w] and self.y>0: 
+        if keys[pygame.K_w] and self.y > 0: 
             
             # set this to True so it's enable the jump_update()
             self.isJump = True
@@ -74,44 +56,69 @@ class Player:
             # self.y -= self.vel 
             
         # if S key is pressed 
-        if keys[pygame.K_s] and self.y<world_y-self.height: 
+        if keys[pygame.K_s] and self.y < world_y - self.height: 
             # increment in y co-ordinate 
-            self.y += self.vel 
+            self.y += self.vel
             
-
-
-    
-    # # looks at the keys that are pressed and changes the velocity of the player
-    # #
-    # def update_velocity(self, elapsed_seconds):
-    #     # keys = pygame.key.get_pressed()
-    #     # if keys[pygame.K_UP] and self.y>0:
-    #     #     self.dy -= elapsed_seconds
-    #     # elif keys[pygame.K_DOWN] and self.y<600-self.height:
-    #     #     self.dy += elapsed_seconds
-    #     # if keys[pygame.K_RIGHT and self.x<800-self.width]:
-    #     #     self.dx += elapsed_seconds
-    #     # if keys[pygame.K_LEFT and self.x>0]:
-    #     #     self.dx -= elapsed_seconds
-
-    # def cap_velocity(self):
-    #     self.dx = max(-1, min(1, self.dx))
-    #     self.dy = max(-1, min(1, self.dy))
-
     # This will render our character - for now it's just a red rectangle
     def render(self, screen):
         pygame.draw.rect(screen, RED, (self.x, self.y, self.width, self.height))
 
+class Platform:
+    # rect is (x, y, width, height)
+    def __init__(self, color, rect):
+        self.color = color
+        self.rect = rect
+
+class Level:
+    def __init__(self, platform_list):
+        self.platform_list = platform_list
+    
+    def render_platforms(self, screen):
+        for platform in self.platform_list:
+            pygame.draw.rect(screen, platform.color, platform.rect)
+
+
 #colors
-RED =(255,0,0)
+RED = (255, 0, 0)
 
+test_level = Level([
+    Platform((0,  255,   255), (  0, 200, 250, 10)),
+    Platform((255,  0,     0), (450, 200, 250, 10)),
+    Platform((255,  0,   255), (  0, 400, 250, 10)),
+    Platform((255,  255  , 0), (450, 400, 250, 10)),
+    Platform((255,  255, 255), (100, 550, 500, 10)),
+])
 
+# Draw the background onto the screen, making sure to scale it to fill the screen
+# while preserving the aspect ratio of the image - centers it as well.
+background_unscaled = pygame.image.load("images/background_1.png")
+def drawBackground(screen):
+    bg_res = background_unscaled.get_size()
+    screen_res = screen.get_size()
+    
+    scale_x = screen_res[0] / bg_res[0]
+    scale_y = screen_res[1] / bg_res[1]
+    best_scale = math.ceil(max(scale_x, scale_y))
+    
+    scale_res = [
+        bg_res[0] * best_scale,
+        bg_res[1] * best_scale
+    ]
+
+    pos = [
+        (screen_res[0] - scale_res[0]) / 2,
+        (screen_res[1] - scale_res[1]) / 2,
+    ]
+
+    background = pygame.transform.scale(background_unscaled, scale_res)
+    screen.blit(background, pos)
 
 
 def run(screen, start):
     main_character = Player()
 
-    # background = pygame.image.load("images/background_1.png").convert()
+
     # rendering loop
     running = True
     while running:
@@ -124,7 +131,11 @@ def run(screen, start):
         screen.fill((0, 0, 0))
 
         # render the backdrop
+        drawBackground(screen)
+
         # render the level here
+        test_level.render_platforms(screen)
+
         # render the character here
         main_character.render(screen)
 
@@ -135,18 +146,7 @@ def run(screen, start):
         pygame.time.delay(30)
 
         # Update the position of the player
-        # elapsed = start - time.perf_counter()
-        # main_character.update_velocity(elapsed)
-        # main_character.cap_velocity()
-        main_character.update_position()
+        elapsed = time.perf_counter() - start
+        
+        main_character.update_position(screen)
         main_character.jump_update()
-        # """Controls!!!!"""
-        # keys = pygame.key.get_pressed()
-        # if keys[pygame.K_UP]:
-        #     pass
-        # if keys[pygame.K_DOWN]:
-        #     pass
-        # if keys[pygame.K_LEFT]:
-        #     pass
-        # if keys[pygame.K_RIGHT]:
-        #     pass
