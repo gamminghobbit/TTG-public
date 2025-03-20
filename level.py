@@ -54,7 +54,7 @@ class Player:
             self.isJump = True
             # # decrement in y co-ordinate 
             # self.y -= self.vel 
-            
+
         # if S key is pressed 
         if keys[pygame.K_s] and self.y < world_y - self.height: 
             # increment in y co-ordinate 
