@@ -5,28 +5,50 @@ import math
 class Player:
     def __init__(self):
         # our player's absolute position
-        self.x = 400
-        self.y = 300
+        self.x = 0
+        self.y = 600-40
         # our player's size
         self.width = 30
         self.height = 40
         # our player's velocity
-        self.vel = 10
+        self.vel = 4
         # for the jump function
         self.isJump = False
         # this used to adjust the jump height
-        self.jumpCount = 7
+        self.jumpCount = 40
 
-    # function for jump
+
+    # function for jump and collision detect
     def jump_update(self):
         if self.isJump:
-            if self.jumpCount >= -10:
-                self.y -= (self.jumpCount * abs(self.jumpCount)) * 0.5
-                self.jumpCount -= 1
-            else: 
-                self.jumpCount = 10
-                self.isJump = False
+            # if self.jumpCount >= -40:
+            if not self.y + 40 > 600:
+                if (self.y <= 400) and (self.y + 40 >= 400+20) and (self.x <= 250):
+                    self.jumpCount = 0
+                    self.y = 420
 
+                self.y -= (self.jumpCount * abs(self.jumpCount)) * 0.01
+                self.jumpCount -= 1
+
+                if (self.y <= 380) and (self.y + 40 >= 400) and (self.x <= 250):
+                    self.y = 400 - 40
+                    self.jumpCount = 40
+                    self.isJump = False
+
+            else: 
+                self.y = 600 - 40
+                self.jumpCount = 40
+                self.isJump = False
+            # if self.jumpCount >= -10:
+            #     self.neg = 1
+            #     if self.jumpCount < 0:
+            #         self.neg = -1
+            #     self.y -= (self.jumpCount ** 2) * 0.5 * self.neg
+            #     self.jumpCount -= 1
+            # else:
+            #     self.jumpCount = 10
+            #     self.isJump = False
+                
     # our position is changed based on our velocity
     # Our current velocity is also changed by gravity
     def update_position(self, screen):
@@ -43,22 +65,28 @@ class Player:
             
         # if D key is pressed 
         if keys[pygame.K_d] and self.x < world_x - self.width: 
-            
-            # increment in x co-ordinate 
-            self.x += self.vel
-            
-        # if W key is pressed 
-        if keys[pygame.K_w] and self.y > 0: 
-            
-            # set this to True so it's enable the jump_update()
-            self.isJump = True
-            # # decrement in y co-ordinate 
-            # self.y -= self.vel 
 
-        # if S key is pressed 
-        if keys[pygame.K_s] and self.y < world_y - self.height: 
-            # increment in y co-ordinate 
-            self.y += self.vel
+            if (self.x >= 250) and (self.x <= 255) and (self.y == 400 - 40):
+                self.jumpCount = 0
+                self.isJump = True
+            self.x += self.vel
+
+        # if W key is pressed 
+        if keys[pygame.K_w] and self.y > 0:
+            self.isJump = True
+        
+        # if W key is pressed 
+        # if keys[pygame.K_w] and self.y > 0: 
+            
+        #     # set this to True so it's enable the jump_update()
+        #     # self.isJump = True
+        #     # # decrement in y co-ordinate 
+        #     self.y -= self.vel 
+
+        # # if S key is pressed 
+        # if keys[pygame.K_s] and self.y < world_y - self.height: 
+        #     # increment in y co-ordinate 
+        #     self.y += self.vel
             
     # This will render our character - for now it's just a red rectangle
     def render(self, screen):
@@ -82,12 +110,13 @@ class Level:
 #colors
 RED = (255, 0, 0)
 
+# rect is (x, y, width, height)
 test_level = Level([
-    Platform((0,  255,   255), (  0, 200, 250, 10)),
-    Platform((255,  0,     0), (450, 200, 250, 10)),
-    Platform((255,  0,   255), (  0, 400, 250, 10)),
-    Platform((255,  255  , 0), (450, 400, 250, 10)),
-    Platform((255,  255, 255), (100, 550, 500, 10)),
+    Platform((0,  255,   255), (  0, 200, 250, 20)),
+    Platform((255,  0,     0), (450, 200, 250, 20)),
+    Platform((255,  0,   255), (  0, 400, 250, 20)),
+    Platform((255,  255  , 0), (450, 400, 250, 20)),
+    Platform((255,  255, 255), (200, 530, 500, 20)),
 ])
 
 # Draw the background onto the screen, making sure to scale it to fill the screen
@@ -143,7 +172,7 @@ def run(screen, start):
         pygame.display.flip()
         
         # set delay to prevent player moving too fast
-        pygame.time.delay(30)
+        # pygame.time.delay(30)
 
         # Update the position of the player
         elapsed = time.perf_counter() - start
