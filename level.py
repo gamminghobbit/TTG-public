@@ -3,6 +3,9 @@ import time
 import math
 import json
 
+window_x = 800
+window_y = 600
+
 class Player:
     def __init__(self):
         # our player's absolute position
@@ -12,33 +15,42 @@ class Player:
         self.width = 30
         self.height = 40
         # our player's velocity
-        self.vel = 4
+        self.vel = 5
         # for the jump function
         self.isJump = False
-        # this used to adjust the jump height
-        self.jumpCount = 40
+        # this is used to adjust the jump height
+        self.default_jumpCount = 25
+        self.jumpCount = self.default_jumpCount
 
 
     # function for jump and collision detect
     def jump_update(self):
         if self.isJump:
             # if self.jumpCount >= -40:
-            if not self.y + 40 > 600:
-                if (self.y <= 400) and (self.y + 40 >= 400+20) and (self.x <= 250):
+            if not self.y + self.height > window_y:
+                if (self.y < test_level.platform_list[4].rect[1] + 20) and (self.y + self.height >= test_level.platform_list[4].rect[1] + 20) and (self.x <= test_level.platform_list[4].rect[0] + test_level.platform_list[4].rect[2]) and (self.x + self.width >= test_level.platform_list[4].rect[0]):
                     self.jumpCount = 0
-                    self.y = 420
+                    self.y = test_level.platform_list[4].rect[1] + 20
 
-                self.y -= (self.jumpCount * abs(self.jumpCount)) * 0.01
+                elif (self.y < test_level.platform_list[2].rect[1] + 20) and (self.y + self.height >= test_level.platform_list[2].rect[1] + 20) and (self.x <= test_level.platform_list[2].rect[2]):
+                    self.jumpCount = 0
+                    self.y = test_level.platform_list[2].rect[1] + 20
+
+                self.y -= (self.jumpCount * abs(self.jumpCount)) * 0.04 # this 0.00.. is used to control the jump speed, and it will influence the jump height too
                 self.jumpCount -= 1
 
-                if (self.y <= 380) and (self.y + 40 >= 400) and (self.x <= 250):
-                    self.y = 400 - 40
-                    self.jumpCount = 40
+                if (self.y <= test_level.platform_list[2].rect[1]) and (self.y + self.height >= test_level.platform_list[2].rect[1]) and (self.x <= test_level.platform_list[2].rect[2]):
+                    self.y = test_level.platform_list[2].rect[1] - self.height
+                    self.jumpCount = self.default_jumpCount
+                    self.isJump = False
+                elif (self.y <= test_level.platform_list[4].rect[1]) and (self.y + self.height >= test_level.platform_list[4].rect[1]) and (self.x <= test_level.platform_list[4].rect[0] + test_level.platform_list[4].rect[2]) and (self.x + self.width >= test_level.platform_list[4].rect[0]):
+                    self.y = test_level.platform_list[4].rect[1] - self.height
+                    self.jumpCount = self.default_jumpCount
                     self.isJump = False
 
             else: 
-                self.y = 600 - 40
-                self.jumpCount = 40
+                self.y = window_y - self.height
+                self.jumpCount = self.default_jumpCount
                 self.isJump = False
             # if self.jumpCount >= -10:
             #     self.neg = 1
@@ -53,7 +65,7 @@ class Player:
     # our position is changed based on our velocity
     # Our current velocity is also changed by gravity
     def update_position(self, screen):
-        (world_x, world_y) = screen.get_size()
+        (self.world_x, self.world_y) = screen.get_size()
 
         # stores keys pressed 
         keys = pygame.key.get_pressed() 
@@ -61,13 +73,19 @@ class Player:
         # if A key is pressed 
         if keys[pygame.K_a] and self.x > 0: 
             
+            if  (self.x + self.width <= test_level.platform_list[4].rect[0]) and (self.x + self.width >= test_level.platform_list[4].rect[0] - 1) and (self.y == test_level.platform_list[4].rect[1] - self.height):
+                self.jumpCount = 0
+                self.isJump = True
             # decrement in x co-ordinate 
             self.x -= self.vel
             
         # if D key is pressed 
-        if keys[pygame.K_d] and self.x < world_x - self.width: 
+        if keys[pygame.K_d] and self.x < self.world_x - self.width: 
 
-            if (self.x >= 250) and (self.x <= 255) and (self.y == 400 - 40):
+            if (self.x >= test_level.platform_list[2].rect[2]) and (self.x <= test_level.platform_list[2].rect[2] + 1) and (self.y == test_level.platform_list[2].rect[1] - self.height):
+                self.jumpCount = 0
+                self.isJump = True
+            elif (self.x >= test_level.platform_list[4].rect[0] + test_level.platform_list[4].rect[2]) and (self.x <= test_level.platform_list[4].rect[0] + test_level.platform_list[4].rect[2] + 1) and (self.y == test_level.platform_list[4].rect[1] - self.height):
                 self.jumpCount = 0
                 self.isJump = True
             self.x += self.vel
@@ -119,6 +137,8 @@ test_level = Level([
     Platform((255,  255  , 0), (450, 400, 250, 20)),
     Platform((255,  255, 255), (200, 530, 500, 20)),
 ])
+
+print(test_level.platform_list[2].rect[1])
 
 # Draw the background onto the screen, making sure to scale it to fill the screen
 # while preserving the aspect ratio of the image - centers it as well.
