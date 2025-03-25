@@ -271,12 +271,11 @@ def run(screen, start):
 
         # update the display
         pygame.display.flip()
-        
-        # set delay to prevent player moving too fast
-        # pygame.time.delay(30)
 
-        # Update the position of the player
-        elapsed = time.perf_counter() - start
-        
+        # lock the game to 60 fps max
+        elapsed_seconds = time.perf_counter() - start
+        time.sleep(max(0, (1 / 60) - elapsed_seconds))
+
+        # Update the position of the player        
         main_character.update_position(screen)
         main_character.jump_update()
