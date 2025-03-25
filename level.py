@@ -205,7 +205,6 @@ class Level:
         for platform in self.platform_list:
             pygame.draw.rect(screen, platform.color, platform.rect)
 
-
 #colors
 RED = (255, 0, 0)
 
