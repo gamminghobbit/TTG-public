@@ -6,6 +6,44 @@ import json
 window_x = 800
 window_y = 600
 
+
+# define platforms
+platform_0 = {
+    'x': 200,
+    'y': 530,
+    'width': 500,
+    'height': 20
+}
+
+platform_1 = {
+    'x': 0,
+    'y': 400,
+    'width': 250,
+    'height': 20
+}
+
+platform_2 = {
+    'x': 450,
+    'y': 400,
+    'width': 250,
+    'height': 20
+}
+
+platform_3 = {
+    'x': 0,
+    'y': 200,
+    'width': 250,
+    'height': 20
+}
+
+platform_4 = {
+    'x': 450,
+    'y': 200,
+    'width': 250,
+    'height': 20
+}
+
+
 class Player:
     def __init__(self):
         # our player's absolute position
@@ -22,29 +60,55 @@ class Player:
         self.default_jumpCount = 25
         self.jumpCount = self.default_jumpCount
 
+# rect is (x[0], y[1], width[2], height[3])
 
     # function for jump and collision detect
     def jump_update(self):
         if self.isJump:
-            # if self.jumpCount >= -40:
+            # if self.jumpCount >= -40: (this was used to make the jump has the same landing as when it started to jump)
+            # if the player's y + it's height is not below than the bottom of the screen, enable the jump, otherwise, set player's y level to the bottom of the screen plus it's height and disable the jump_update
             if not self.y + self.height > window_y:
-                if (self.y < test_level.platform_list[4].rect[1] + 20) and (self.y + self.height >= test_level.platform_list[4].rect[1] + 20) and (self.x <= test_level.platform_list[4].rect[0] + test_level.platform_list[4].rect[2]) and (self.x + self.width >= test_level.platform_list[4].rect[0]):
+                # collision detect for platform_0 (bottom)
+                # if player's position is between the bottom of the platform_0
+                if (self.y < platform_0['y'] + platform_0['height']) and \
+                (self.y + self.height >= platform_0['y'] + platform_0['height']) and \
+                (self.x <= platform_0['x'] + platform_0['width']) and \
+                (self.x + self.width >= platform_0['x']):
+                    # set player to free fall and it's y level to the bottom of the platform_0
                     self.jumpCount = 0
-                    self.y = test_level.platform_list[4].rect[1] + 20
+                    self.y = platform_0['y'] + platform_0['height']
 
-                elif (self.y < test_level.platform_list[2].rect[1] + 20) and (self.y + self.height >= test_level.platform_list[2].rect[1] + 20) and (self.x <= test_level.platform_list[2].rect[2]):
+                # collision detect for platform_1 (bottom)
+                # if player's position is between the bottom of the platform_1
+                elif (self.y < platform_1['y'] + platform_1['height']) and \
+                (self.y + self.height >= platform_1['y'] + platform_1['height']) and \
+                (self.x <= platform_1['width']):
+                    # set player to free fall and it's y level to the bottom of the platform_1
                     self.jumpCount = 0
-                    self.y = test_level.platform_list[2].rect[1] + 20
+                    self.y = platform_1['y'] + platform_1['height']
 
+                # jump_update function
                 self.y -= (self.jumpCount * abs(self.jumpCount)) * 0.04 # this 0.00.. is used to control the jump speed, and it will influence the jump height too
                 self.jumpCount -= 1
 
-                if (self.y <= test_level.platform_list[2].rect[1]) and (self.y + self.height >= test_level.platform_list[2].rect[1]) and (self.x <= test_level.platform_list[2].rect[2]):
-                    self.y = test_level.platform_list[2].rect[1] - self.height
+                # collision detect for platform_1 (top)
+                # if player's position is between the top of the platform_1
+                if (self.y <= platform_1['y']) and \
+                (self.y + self.height >= platform_1['y']) and \
+                (self.x <= platform_1['width']):
+                    # set player's y level to the top of the platform_1 and disable the jump update
+                    self.y = platform_1['y'] - self.height
                     self.jumpCount = self.default_jumpCount
                     self.isJump = False
-                elif (self.y <= test_level.platform_list[4].rect[1]) and (self.y + self.height >= test_level.platform_list[4].rect[1]) and (self.x <= test_level.platform_list[4].rect[0] + test_level.platform_list[4].rect[2]) and (self.x + self.width >= test_level.platform_list[4].rect[0]):
-                    self.y = test_level.platform_list[4].rect[1] - self.height
+
+                # collision detect for platform_0 (top)
+                # if player's position is between the top of the platform_0
+                elif (self.y <= platform_0['y']) and \
+                (self.y + self.height >= platform_0['y']) and \
+                (self.x <= platform_0['x'] + platform_0['width']) and \
+                (self.x + self.width >= platform_0['x']):
+                    # set player's y level to the top of the platform_0 and disable the jump update
+                    self.y = platform_0['y'] - self.height
                     self.jumpCount = self.default_jumpCount
                     self.isJump = False
 
@@ -73,7 +137,12 @@ class Player:
         # if A key is pressed 
         if keys[pygame.K_a] and self.x > 0: 
             
-            if  (self.x + self.width <= test_level.platform_list[4].rect[0]) and (self.x + self.width >= test_level.platform_list[4].rect[0] - 1) and (self.y == test_level.platform_list[4].rect[1] - self.height):
+            # free fall at the left edge of the platform_0
+            # if it's right edge leave the tip of the platform_0
+            if (self.x + self.width <= platform_0['x']) and \
+            (self.x + self.width >= platform_0['x'] - 1) and \
+            (self.y + self.height == platform_0['y']):
+                # let the player free fall
                 self.jumpCount = 0
                 self.isJump = True
             # decrement in x co-ordinate 
@@ -82,10 +151,21 @@ class Player:
         # if D key is pressed 
         if keys[pygame.K_d] and self.x < self.world_x - self.width: 
 
-            if (self.x >= test_level.platform_list[2].rect[2]) and (self.x <= test_level.platform_list[2].rect[2] + 1) and (self.y == test_level.platform_list[2].rect[1] - self.height):
+            # free fall at the right edge of the platform_1
+            # if player's left edge leave the tip of the platform_1
+            if (self.x >= platform_1['width']) and \
+            (self.x <= platform_1['width'] + 1) and \
+            (self.y == platform_1['y'] - self.height):
+                # let the player free fall
                 self.jumpCount = 0
                 self.isJump = True
-            elif (self.x >= test_level.platform_list[4].rect[0] + test_level.platform_list[4].rect[2]) and (self.x <= test_level.platform_list[4].rect[0] + test_level.platform_list[4].rect[2] + 1) and (self.y == test_level.platform_list[4].rect[1] - self.height):
+
+            # free fall at the right edge of the platform_0
+            # if it's left edge leave the tip of the platform_0
+            elif (self.x >= platform_0['x'] + platform_0['width']) and \
+            (self.x <= platform_0['x'] + platform_0['width'] + 1) and \
+            (self.y == platform_0['y'] - self.height):
+                # let the player free fall
                 self.jumpCount = 0
                 self.isJump = True
             self.x += self.vel
@@ -129,16 +209,17 @@ class Level:
 #colors
 RED = (255, 0, 0)
 
-# rect is (x, y, width, height)
+# rect is (x[0], y[1], width[2], height[3])
 test_level = Level([
-    Platform((0,  255,   255), (  0, 200, 250, 20)),
-    Platform((255,  0,     0), (450, 200, 250, 20)),
+    Platform((255,  255, 255), (200, 530, 500, 20)),
     Platform((255,  0,   255), (  0, 400, 250, 20)),
     Platform((255,  255  , 0), (450, 400, 250, 20)),
-    Platform((255,  255, 255), (200, 530, 500, 20)),
+    Platform((0,  255,   255), (  0, 200, 250, 20)),
+    Platform((255,  0,     0), (450, 200, 250, 20))
 ])
 
-print(test_level.platform_list[2].rect[1])
+
+# print(platform_1['y'])
 
 # Draw the background onto the screen, making sure to scale it to fill the screen
 # while preserving the aspect ratio of the image - centers it as well.
