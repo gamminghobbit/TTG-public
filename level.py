@@ -9,13 +9,13 @@ window_y = 600
 
 level_1 = [
     "................................",
+    ".AAAAAAAA.......................",
+    ".A..............................",
+    ".A..............................",
+    ".AAAAAAAA.......................",
     "................................",
     "................................",
-    "................................",
-    "................................",
-    "................................",
-    "................................",
-    "................................",
+    ".................AAAAAAAAAAAAAAA",
     "..AAAA..........................",
     "................................",
     "....AAAAAAAAA...................",
@@ -34,50 +34,31 @@ level_1 = [
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAA....",
 ]
 
+# platform[0] -> x
+# platform[1] -> y
+# platform[2] -> width
+# platform[3] -> height
 
 def loadLevel(level):
-    pass
-
-
-# define platforms
-platforms = [
-    {
-    'x': 200,
-    'y': 530,
-    'width': 500,
-    'height': 20
-},
-{
-    'x': 0,
-    'y': 400,
-    'width': 250,
-    'height': 20
-},
-{
-    'x': 450,
-    'y': 400,
-    'width': 250,
-    'height': 20
-},
-{
-    'x': 0,
-    'y': 200,
-    'width': 250,
-    'height': 20
-},
-{
-    'x': 450,
-    'y': 200,
-    'width': 250,
-    'height': 20
-}
-]
+    scale_factor = 48
+    platforms = []
+    for row_idx, row in enumerate(level):
+        for col_idx, cell in enumerate(row):
+            if cell != '.':
+                # x, y, width, height
+                platforms.append((
+                    scale_factor * col_idx,
+                    scale_factor * row_idx,
+                    scale_factor,
+                    scale_factor,
+                ))
+    return platforms
 
 class Player:
     def __init__(self):
         # our player's absolute position
         self.x = 0
-        self.y = 600-40
+        self.y = 600 - 40
         # our player's size
         self.width = 30
         self.height = 40
@@ -92,7 +73,7 @@ class Player:
 # rect is (x[0], y[1], width[2], height[3])
 
     # function for jump and collision detect
-    def jump_update(self, elapsed):
+    def jump_update(self, platforms, elapsed):
         if self.isJump:
             # if self.jumpCount >= -40: (this was used to make the jump has the same landing as when it started to jump)
             # if the player's y + it's height is not below than the bottom of the screen, enable the jump, otherwise, set player's y level to the bottom of the screen plus it's height and disable the jump_update
@@ -100,21 +81,21 @@ class Player:
                 for platform in platforms:
                     # collision detect for platform_0 (bottom)
                     # if player's position is between the bottom of the platform_0
-                    if (self.y < platform['y'] + platform['height']) and \
-                    (self.y + self.height >= platform['y'] + platform['height']) and \
-                    (self.x <= platform['x'] + platform['width']) and \
+                    if (self.y < platform[1] + platform[3]) and \
+                    (self.y + self.height >= platform[1] + platform[3]) and \
+                    (self.x <= platform[0] + platform[2]) and \
                     (self.x + self.width >= platform['x']):
                         # set player to free fall and it's y level to the bottom of the platform_0
                         self.jumpCount = 0
-                        self.y = platform['y'] + platform['height']
+                        self.y = platform[1] + platform[3]
 
                     # collision detect for platform_1 (top)
                     # if player's position is between the top of the platform_1
-                    if (self.y <= platform['y']) and \
-                    (self.y + self.height >= platform['y']) and \
-                    (self.x <= platform['width']):
+                    if (self.y <= platform[1]) and \
+                    (self.y + self.height >= platform[1]) and \
+                    (self.x <= platform[2]):
                         # set player's y level to the top of the platform_1 and disable the jump update
-                        self.y = platform['y'] - self.height
+                        self.y = platform[1] - self.height
                         self.jumpCount = self.default_jumpCount
                         self.isJump = False
 
@@ -140,7 +121,7 @@ class Player:
                 
     # our position is changed based on our velocity
     # Our current velocity is also changed by gravity
-    def update_position(self, screen, elapsed):
+    def update_position(self, screen, platforms, elapsed):
         (self.world_x, self.world_y) = screen.get_size()
 
         # stores keys pressed 
@@ -209,26 +190,9 @@ class Platform:
         self.color = color
         self.rect = rect
 
-class Level:
-    def __init__(self, platform_list):
-        self.platform_list = platform_list
-    
-    def render_platforms(self, screen):
-        for platform in self.platform_list:
-            pygame.draw.rect(screen, platform.color, platform.rect)
-
 #colors
 RED = (255, 0, 0)
-
-# rect is (x[0], y[1], width[2], height[3])
-test_level = Level([
-    Platform((255,  255, 255), (200, 530, 500, 20)),
-    Platform((255,  0,   255), (  0, 400, 250, 20)),
-    Platform((255,  255  , 0), (450, 400, 250, 20)),
-    Platform((0,  255,   255), (  0, 200, 250, 20)),
-    Platform((255,  0,     0), (450, 200, 250, 20))
-])
-
+GREEN = (0, 255, 0)
 
 # print(platform_1['y'])
 
@@ -260,6 +224,7 @@ def drawBackground(screen):
 def run(screen, start):
     main_character = Player()
 
+    platforms = loadLevel(level_1)
 
     # rendering loop
     running = True
@@ -276,7 +241,8 @@ def run(screen, start):
         drawBackground(screen)
 
         # render the level here
-        test_level.render_platforms(screen)
+        for platform in platforms:
+            pygame.draw.rect(screen, GREEN, platform)
 
         # render the character here
         main_character.render(screen)
@@ -286,10 +252,10 @@ def run(screen, start):
 
         # lock the game to 60 fps max
         current_time = time.perf_counter()
-        elapsed_seconds = current_time - start
+        elapsed = current_time - start
         start = current_time
-        time.sleep(max(0, (1 / 60) - elapsed_seconds))
+        time.sleep(max(0, (1 / 60) - elapsed))
 
         # Update the position of the player        
-        main_character.update_position(screen, elapsed_seconds)
-        main_character.jump_update(elapsed_seconds)
+        main_character.update_position(screen, platforms, elapsed)
+        main_character.jump_update(platforms, elapsed)
