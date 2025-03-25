@@ -7,42 +7,71 @@ window_x = 800
 window_y = 600
 
 
+level_1 = [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "..AAAA..........................",
+    "................................",
+    "....AAAAAAAAA...................",
+    "................................",
+    "................................",
+    ".................AAAAAAAAAAA....",
+    "................................",
+    "................................",
+    "AAAAAAAAAAAAAA..................",
+    "................................",
+    "..............AAA...............",
+    "................................",
+    ".........................AAAAAAA",
+    "................................",
+    "................................",
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAA....",
+]
+
+
+def loadLevel(level):
+    pass
+
+
 # define platforms
-platform_0 = {
+platforms = [
+    {
     'x': 200,
     'y': 530,
     'width': 500,
     'height': 20
-}
-
-platform_1 = {
+},
+{
     'x': 0,
     'y': 400,
     'width': 250,
     'height': 20
-}
-
-platform_2 = {
+},
+{
     'x': 450,
     'y': 400,
     'width': 250,
     'height': 20
-}
-
-platform_3 = {
+},
+{
     'x': 0,
     'y': 200,
     'width': 250,
     'height': 20
-}
-
-platform_4 = {
+},
+{
     'x': 450,
     'y': 200,
     'width': 250,
     'height': 20
 }
-
+]
 
 class Player:
     def __init__(self):
@@ -57,60 +86,43 @@ class Player:
         # for the jump function
         self.isJump = False
         # this is used to adjust the jump height
-        self.default_jumpCount = 25
+        self.default_jumpCount = 35
         self.jumpCount = self.default_jumpCount
 
 # rect is (x[0], y[1], width[2], height[3])
 
     # function for jump and collision detect
-    def jump_update(self):
+    def jump_update(self, elapsed):
         if self.isJump:
             # if self.jumpCount >= -40: (this was used to make the jump has the same landing as when it started to jump)
             # if the player's y + it's height is not below than the bottom of the screen, enable the jump, otherwise, set player's y level to the bottom of the screen plus it's height and disable the jump_update
             if not self.y + self.height > window_y:
-                # collision detect for platform_0 (bottom)
-                # if player's position is between the bottom of the platform_0
-                if (self.y < platform_0['y'] + platform_0['height']) and \
-                (self.y + self.height >= platform_0['y'] + platform_0['height']) and \
-                (self.x <= platform_0['x'] + platform_0['width']) and \
-                (self.x + self.width >= platform_0['x']):
-                    # set player to free fall and it's y level to the bottom of the platform_0
-                    self.jumpCount = 0
-                    self.y = platform_0['y'] + platform_0['height']
+                for platform in platforms:
+                    # collision detect for platform_0 (bottom)
+                    # if player's position is between the bottom of the platform_0
+                    if (self.y < platform['y'] + platform['height']) and \
+                    (self.y + self.height >= platform['y'] + platform['height']) and \
+                    (self.x <= platform['x'] + platform['width']) and \
+                    (self.x + self.width >= platform['x']):
+                        # set player to free fall and it's y level to the bottom of the platform_0
+                        self.jumpCount = 0
+                        self.y = platform['y'] + platform['height']
 
-                # collision detect for platform_1 (bottom)
-                # if player's position is between the bottom of the platform_1
-                elif (self.y < platform_1['y'] + platform_1['height']) and \
-                (self.y + self.height >= platform_1['y'] + platform_1['height']) and \
-                (self.x <= platform_1['width']):
-                    # set player to free fall and it's y level to the bottom of the platform_1
-                    self.jumpCount = 0
-                    self.y = platform_1['y'] + platform_1['height']
+                    # collision detect for platform_1 (top)
+                    # if player's position is between the top of the platform_1
+                    if (self.y <= platform['y']) and \
+                    (self.y + self.height >= platform['y']) and \
+                    (self.x <= platform['width']):
+                        # set player's y level to the top of the platform_1 and disable the jump update
+                        self.y = platform['y'] - self.height
+                        self.jumpCount = self.default_jumpCount
+                        self.isJump = False
 
                 # jump_update function
-                self.y -= (self.jumpCount * abs(self.jumpCount)) * 0.04 # this 0.00.. is used to control the jump speed, and it will influence the jump height too
+                # this 0.00.. is used to control the jump speed, and it will influence the jump height too
+                self.y -= (self.jumpCount * abs(self.jumpCount)) * elapsed
                 self.jumpCount -= 1
 
-                # collision detect for platform_1 (top)
-                # if player's position is between the top of the platform_1
-                if (self.y <= platform_1['y']) and \
-                (self.y + self.height >= platform_1['y']) and \
-                (self.x <= platform_1['width']):
-                    # set player's y level to the top of the platform_1 and disable the jump update
-                    self.y = platform_1['y'] - self.height
-                    self.jumpCount = self.default_jumpCount
-                    self.isJump = False
-
-                # collision detect for platform_0 (top)
-                # if player's position is between the top of the platform_0
-                elif (self.y <= platform_0['y']) and \
-                (self.y + self.height >= platform_0['y']) and \
-                (self.x <= platform_0['x'] + platform_0['width']) and \
-                (self.x + self.width >= platform_0['x']):
-                    # set player's y level to the top of the platform_0 and disable the jump update
-                    self.y = platform_0['y'] - self.height
-                    self.jumpCount = self.default_jumpCount
-                    self.isJump = False
 
             else: 
                 self.y = window_y - self.height
@@ -128,7 +140,7 @@ class Player:
                 
     # our position is changed based on our velocity
     # Our current velocity is also changed by gravity
-    def update_position(self, screen):
+    def update_position(self, screen, elapsed):
         (self.world_x, self.world_y) = screen.get_size()
 
         # stores keys pressed 
@@ -273,9 +285,11 @@ def run(screen, start):
         pygame.display.flip()
 
         # lock the game to 60 fps max
-        elapsed_seconds = time.perf_counter() - start
+        current_time = time.perf_counter()
+        elapsed_seconds = current_time - start
+        start = current_time
         time.sleep(max(0, (1 / 60) - elapsed_seconds))
 
         # Update the position of the player        
-        main_character.update_position(screen)
-        main_character.jump_update()
+        main_character.update_position(screen, elapsed_seconds)
+        main_character.jump_update(elapsed_seconds)
