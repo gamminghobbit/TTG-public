@@ -130,9 +130,13 @@ class Player:
                         self.y = platform['y'] - self.height
                         self.jumpCount = self.default_jumpCount
                         self.isJump = False
-                        break
 
-            else:
+                # jump_update function
+                # this 0.00.. is used to control the jump speed, and it will influence the jump height too
+                self.y -= (self.jumpCount * abs(self.jumpCount)) * elapsed
+                self.jumpCount -= 1
+
+            else: 
                 self.y = window_y - self.height
                 self.jumpCount = self.default_jumpCount
                 self.isJump = False
