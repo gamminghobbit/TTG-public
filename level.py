@@ -164,6 +164,7 @@ class Player:
                 if (self.x + self.width < platform['x']) and \
                 (self.y + self.height == platform['y']):
                     # let the player free fall
+                    print('Free Fall')
                     self.jumpCount = 0
                     self.isJump = True
             # # decrement in x co-ordinate
@@ -178,6 +179,7 @@ class Player:
                 if (self.x > platform['x'] + platform['width']) and \
                 (self.y == platform['y'] - self.height):
                     # let the player free fall
+                    print('Free Fall')
                     self.jumpCount = 0
                     self.isJump = True
 
@@ -281,7 +283,7 @@ def run(screen, start):
         # elapsed = current_time - start
         # start = current_time
         # time.sleep(max(0, (1 / 60) - elapsed))
-        # sorry Eric, I use this so I can better understand the fps 
+        # sorry Eric, I use this so I can better understand the fps (John)
         clock = pygame.time.Clock()
         elapsed = clock.tick(60)
 
