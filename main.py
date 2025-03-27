@@ -17,4 +17,8 @@ def main():
     # Cleanup
     pygame.quit()
 
+def start_screen():
+    
+
+
 main()

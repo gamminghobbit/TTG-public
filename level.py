@@ -227,29 +227,24 @@ GREEN = (0, 255, 0)
 
 # print(platform_1['y'])
 
-# Draw the background onto the screen, making sure to scale it to fill the screen
-# while preserving the aspect ratio of the image - centers it as well.
-background_unscaled = pygame.image.load("images/background_1.png")
+
+background_unscaled = pygame.image.load("images/mountains.png")
+
 def drawBackground(screen):
-    bg_res = background_unscaled.get_size()
-    screen_res = screen.get_size()
+    bg_width, bg_height = background_unscaled.get_size()
+    screen_width, screen_height = screen.get_size()
 
-    scale_x = screen_res[0] / bg_res[0]
-    scale_y = screen_res[1] / bg_res[1]
-    best_scale = math.ceil(max(scale_x, scale_y))
+    # Determine the best scale factor to fill the screen while preserving aspect ratio
+    scale_factor = max(screen_width / bg_width, screen_height / bg_height)
+    new_width, new_height = round(bg_width * scale_factor), round(bg_height * scale_factor)
 
-    scale_res = [
-        bg_res[0] * best_scale,
-        bg_res[1] * best_scale
-    ]
+    # Center the scaled image on the screen
+    x_offset = (screen_width - new_width) // 2
+    y_offset = (screen_height - new_height) // 2
 
-    pos = [
-        (screen_res[0] - scale_res[0]) / 2,
-        (screen_res[1] - scale_res[1]) / 2,
-    ]
-
-    background = pygame.transform.scale(background_unscaled, scale_res)
-    screen.blit(background, pos)
+    # Scale and draw the background
+    background_scaled = pygame.transform.smoothscale(background_unscaled, (new_width, new_height))
+    screen.blit(background_scaled, (x_offset, y_offset))
 
 
 def run(screen, start):
