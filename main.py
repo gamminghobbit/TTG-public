@@ -10,12 +10,12 @@ FPS = 60
 # Initialize the sound engine
 pygame.mixer.init()
 
-# Background Sound
+# Background sound
 bg_sound = pygame.mixer.Sound('sounds/Game Music 1 Trae.mp3')
 # -1 to make sound loop indefinitely
 bg_sound.play(-1)
 
-# Jumping Sound
+# Jumping sound
 jump_sound = pygame.mixer.Sound('sounds/jump.mp3')
 
 # Colors
