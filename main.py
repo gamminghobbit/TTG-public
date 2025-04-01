@@ -252,9 +252,9 @@ class Game:
 
         # Draw HUD (Score/Questions Answered)
         draw_text(self.screen, f"Correct Answers: {self.questions_answered_correctly} / {len(self.questions_to_ask)}",
-                  18, SCREEN_WIDTH / 2, 10, WHITE)
+                  18, SCREEN_WIDTH / 2, 10, BLACK)
         if self.total_questions_asked < len(self.questions_to_ask):
-            draw_text(self.screen, "Press Q to answer next question", 18, SCREEN_WIDTH / 2, 35, WHITE)
+            draw_text(self.screen, "Press Q to answer next question", 18, SCREEN_WIDTH / 2, 35, BLACK)
         elif self.questions_answered_correctly < len(self.questions_to_ask):
              draw_text(self.screen, "Not enough correct answers to finish!", 18, SCREEN_WIDTH / 2, 35, RED)
         else:
