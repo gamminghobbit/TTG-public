@@ -1,54 +1,29 @@
 {
-    "questions": [
-    {
-      "question": "What is the primary function of a rubber duck in quantum mechanics?",
-      "choices": [
-        "To collapse wavefunctions",
-        "To explain Schrödinger’s Parrot",
-        "To debug intergalactic spaceships",
-        "To keep physicists entertained"
-      ],
-      "answer": "To collapse wavefunctions"
-  },
-    {
-      "question": "If a giraffe wore socks, where would it put them?",
-      "choices": [
-        "On its ears",
-        "On its hooves",
-        "On its tail",
-        "Only on Tuesdays"
-      ],
-      "answer": "On its hooves"
-    },
-    {
-      "question": "Why did the square root of -1 go to therapy?",
-      "choices": [
-        "It had imaginary problems",
-        "It couldn’t find its real self",
-        "Its life was irrational",
-        "It was tired of being squared"
-      ],
-      "answer": "It had imaginary problems"
-    },
-    {
-      "question": "Which of these is the best method for training a dragon?",
-      "choices": [
-        "Enroll it in obedience school",
-        "Teach it binary search algorithms",
-        "Offer it unlimited Wi-Fi",
-        "Convince it that fire is overrated"
-      ],
-      "answer": "Teach it binary search algorithms"
-    },
-    {
-      "question": "What is the most effective way to communicate with aliens?",
-      "choices": [
-        "Morse code via potatoes",
-        "Synchronized interpretive dance",
-        "Email, but in Comic Sans",
-        "Using a tin can telephone to the moon"
-      ],
-      "answer": "Synchronized interpretive dance"
-    }
+  "questions": [
+    [
+       "What color is the sky on a clear day?",
+       ["Beige", "Green", "Red", "Blue"],
+       3
+    ],
+    [
+       "How many legs does a spider typically have?",
+       ["6", "8", "10", "12"],
+       1
+    ],
+    [
+       "What is 2 + 2?",
+       ["3", "4", "5", "2"],
+       1
+    ],
+    [
+       "Which planet is known as the Red Planet?",
+       ["Earth", "Mars", "Jupiter", "Pluto"],
+       1
+    ],
+    [
+       "What is the main ingredient in bread?",
+       ["Sugar", "Flour", "Salt", "Cocaine"],
+       1
+    ]
   ]
 }

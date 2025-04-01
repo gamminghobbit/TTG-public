@@ -41,13 +41,15 @@ STATE_WIN = 3
 
 # --- Questions ---
 # Format: (Question text, [Option 1, Option 2, Option 3, Option 4], Correct Option Index (0, 1, 2, or 3))
-QUESTIONS = [
-    ("What color is the sky on a clear day?", ["Beige", "Green", "Red", "Blue"], 3),
-    ("How many legs does a spider typically have?", ["6", "8", "10", "12"], 1),
-    ("What is 2 + 2?", ["3", "4", "5", "2"], 1),
-    ("Which planet is known as the Red Planet?", ["Earth", "Mars", "Jupiter", "Pluto"], 1),
-    ("What is the main ingredient in bread?", ["Sugar", "Flour", "Salt", "Cocaine"], 1)
-]
+import json
+
+def load_questions(filename="questions.json"):
+    """Load questions from a JSON file."""
+    with open(filename, "rt") as json_file:
+        return json.load(json_file)["questions"]
+
+QUESTIONS = load_questions()
+
 
 # --- Helper Functions ---
 def draw_text(surface, text, size, x, y, color=WHITE, font_name=None):
