@@ -9,10 +9,14 @@ FPS = 60
 
 # Initialize the sound engine
 pygame.mixer.init()
+
 # Background Sound
 bg_sound = pygame.mixer.Sound('sounds/Game Music 1 Trae.mp3')
 # -1 to make sound loop indefinitely
 bg_sound.play(-1)
+
+# Jumping Sound
+jump_sound = pygame.mixer.Sound('sounds/jump.mp3')
 
 # Colors
 WHITE = (255, 255, 255)
@@ -23,12 +27,12 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
 # Player properties
-PLAYER_WIDTH = 30
-PLAYER_HEIGHT = 30
+PLAYER_WIDTH = 48
+PLAYER_HEIGHT = 48
 PLAYER_ACC = 0.5
 PLAYER_FRICTION = -0.12
 PLAYER_GRAVITY = 0.5
-PLAYER_JUMP_STRENGTH = -14
+PLAYER_JUMP_STRENGTH = -13
 
 # Platform properties
 PLATFORM_THICKNESS = 24
@@ -81,6 +85,10 @@ class Game:
         self.total_questions_asked = 0
         self.active_question_data = None # Stores current question details
         self.question_feedback = "" # To show "Correct!" or "Wrong!"
+        
+        # Other initialization code...
+        self.background = pygame.image.load("images/background.jpg").convert()
+        self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
         self.load_data()
 
@@ -100,7 +108,7 @@ class Game:
             (150, SCREEN_HEIGHT - 100, 200, PLATFORM_THICKNESS),
             (450, SCREEN_HEIGHT - 200, 150, PLATFORM_THICKNESS),
             (200, SCREEN_HEIGHT - 350, 180, PLATFORM_THICKNESS),
-            (600, SCREEN_HEIGHT - 450, 150, PLATFORM_THICKNESS)
+            (500, SCREEN_HEIGHT - 450, 250, PLATFORM_THICKNESS)
         ]
 
         for pos in platform_positions:
@@ -114,26 +122,32 @@ class Game:
     def run(self):
         """The main game loop."""
         while self.running:
-            self.dt = self.clock.tick(FPS) / 1000.0 # Delta time in seconds
+            self.dt = self.clock.tick(FPS) / 1000.0  # Delta time in seconds
             self.events()
+
             if self.game_state == STATE_PLAYING:
                 self.update()
+
+            # Draw everything, starting with the background
+            self.screen.blit(self.background, (0, 0))
+
+            if self.game_state == STATE_PLAYING:
                 self.draw()
             elif self.game_state == STATE_QUESTION:
-                # Don't update game physics, just handle question input
-                self.draw() # Draw game behind question
-                self.draw_question_screen() # Draw question overlay
+                self.draw()  # Draw game behind question
+                self.draw_question_screen()  # Draw question overlay
             elif self.game_state == STATE_WIN:
                 self.draw()
                 self.draw_win_screen()
-            elif self.game_state == STATE_GAME_OVER: # Could add a losing state later
+            elif self.game_state == STATE_GAME_OVER:
                 self.draw()
-                self.draw_game_over_screen() # Placeholder if needed
+                self.draw_game_over_screen()
 
-            pygame.display.flip() # Update the full display Surface to the screen
+            pygame.display.flip()  # Update the full display Surface to the screen
 
         pygame.quit()
         sys.exit()
+
 
     def update(self):
         """Update game logic (player movement, collisions)."""
@@ -230,7 +244,6 @@ class Game:
 
     def draw(self):
         """Draw everything to the screen."""
-        self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
 
         # Draw the goal only if enough questions are answered
@@ -337,9 +350,9 @@ class Game:
 class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
-        self.game = game # Reference to the main game object
-        self.image = pygame.Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
-        self.image.fill(BLUE)
+        self.game = game  
+        self.image = pygame.image.load("images/character.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (PLAYER_WIDTH, PLAYER_HEIGHT))
         self.rect = self.image.get_rect()
 
         # Using vectors for position, velocity, acceleration
@@ -348,16 +361,8 @@ class Player(pygame.sprite.Sprite):
         self.acc = pygame.math.Vector2(0, 0)
         self.is_jumping = False
 
-    def jump(self):
-        """Make the player jump, but only if standing on a platform."""
-        # Check if standing on a platform first
-        self.rect.y += 1 # Move down 1 pixel to check for platform below
-        hits = pygame.sprite.spritecollide(self, self.game.platforms, False)
-        self.rect.y -= 1 # Move back up
-
-        if hits and not self.is_jumping: # Only jump if on ground
-            self.vel.y = PLAYER_JUMP_STRENGTH
-            self.is_jumping = True
+        # Track facing direction
+        self.facing_right = True  
 
     def update(self):
         """Update player physics (movement, gravity)."""
@@ -376,17 +381,32 @@ class Player(pygame.sprite.Sprite):
 
         # Equations of motion (Euler integration)
         self.vel += self.acc
-        # Limit horizontal speed if needed:
-        # MAX_SPEED = 5
-        # if abs(self.vel.x) > MAX_SPEED:
-        #     self.vel.x = MAX_SPEED if self.vel.x > 0 else -MAX_SPEED
-
-        self.pos += self.vel + 0.5 * self.acc # Improved position update
+        self.pos += self.vel + 0.5 * self.acc  # Improved position update
 
         # Update rect center based on position vector
-        self.rect.midbottom = self.pos # Align bottom of rect with position vector
+        self.rect.midbottom = self.pos  # Align bottom of rect with position vector
 
-        # Collision detection happens in the main game update loop after movement
+        # Flip image only if direction changes
+        if self.vel.x > 0 and not self.facing_right:
+            self.facing_right = True
+            self.image = pygame.transform.flip(self.image, True, False)
+        elif self.vel.x < 0 and self.facing_right:
+            self.facing_right = False
+            self.image = pygame.transform.flip(self.image, True, False)
+
+    def jump(self):
+        """Make the player jump, but only if standing on a platform."""
+        # Check if standing on a platform first
+        self.rect.y += 1 # Move down 1 pixel to check for platform below
+        hits = pygame.sprite.spritecollide(self, self.game.platforms, False)
+        self.rect.y -= 1 # Move back up
+
+        if hits and not self.is_jumping: # Only jump if on ground
+            self.vel.y = PLAYER_JUMP_STRENGTH
+            self.is_jumping = True
+            # play the sound
+            jump_sound.play()
+            
 
 # --- Platform Class ---
 class Platform(pygame.sprite.Sprite):
