@@ -7,6 +7,13 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 FPS = 60
 
+# Initialize the sound engine
+pygame.mixer.init()
+# Background Sound
+bg_sound = pygame.mixer.Sound('sounds/Game Music 1 Trae.mp3')
+# -1 to make sound loop indefinitely
+bg_sound.play(-1)
+
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -58,7 +65,6 @@ class Game:
     def __init__(self):
         """Initialize Pygame, screen, clock, and game variables."""
         pygame.init()
-        # pygame.mixer.init() # For sound effects later
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Platformer with Questions")
         self.clock = pygame.time.Clock()
@@ -390,7 +396,47 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+def show_intro_screen():
+    """Display an intro screen with the specified image."""
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    clock = pygame.time.Clock()
+    
+    # Load and scale the image
+    image = pygame.image.load("images/study_for_fun.png").convert_alpha()
+    
+    # Scale to fill viewport
+    img_width, img_height = image.get_rect().size
+    scale = max(SCREEN_WIDTH / img_width, SCREEN_HEIGHT / img_height)
+    new_width, new_height = int(img_width * scale), int(img_height * scale)
+    scaled_image = pygame.transform.scale(image, (new_width, new_height))
+    
+    # Center the image
+    img_rect = scaled_image.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    
+    # Wait for key press
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYUP:
+                waiting = False
+        
+        screen.fill(BLACK)
+        screen.blit(scaled_image, img_rect.topleft)
+        draw_text(screen, "Press any key to start",48, SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100, BLACK)
+        pygame.display.flip()
+        clock.tick(FPS)
+
 # --- Start the Game ---
 if __name__ == "__main__":
+    # Load the game
     game = Game()
+
+    # Show the intro screen first
+    show_intro_screen()
+    
+    # Then start the game
     game.run()
